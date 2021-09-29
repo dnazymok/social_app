@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Post
+from .models import Post, Like
 
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
@@ -7,4 +7,13 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'description', 'content', 'date_posted', 'author']
+        fields = ['id', 'title', 'description', 'content', 'date_posted',
+                  'author']
+
+
+class LikeSerializer(serializers.HyperlinkedModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Like
+        fields = ['id', 'user']
