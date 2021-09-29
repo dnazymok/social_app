@@ -13,7 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class PostSerializer(serializers.HyperlinkedModelSerializer):
-    author = UserSerializer(read_only=True)
+    author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Post
