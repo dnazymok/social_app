@@ -1,5 +1,7 @@
-from rest_framework import mixins
+from rest_framework import mixins, status
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from django.db import IntegrityError
 
 from .models import Post, Like
 from .serializers import PostSerializer, LikeSerializer
@@ -47,7 +49,11 @@ class LikeListCreateView(mixins.ListModelMixin,
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        try:
+            return self.create(request, *args, **kwargs)
+        except IntegrityError:
+            content = {'error': 'IntegrityError'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
         post_id = self.kwargs.get('pk')
