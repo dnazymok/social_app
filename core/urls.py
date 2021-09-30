@@ -25,4 +25,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(),
          name='token_refresh'),
     path('posts/', include('apps.posts.urls')),
+    path('users/', include('apps.users.urls')),
 ]
