@@ -2,6 +2,7 @@ from rest_framework import mixins, status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from django.db import IntegrityError
+from django.http import Http404
 
 from .models import Post, Like
 from .serializers import PostSerializer, LikeSerializer
@@ -40,13 +41,10 @@ class DetailView(mixins.RetrieveModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
-class LikeListCreateView(mixins.ListModelMixin,
-                         mixins.CreateModelMixin,
-                         GenericAPIView):
+class LikeCreateDeleteView(mixins.CreateModelMixin,
+                           mixins.DestroyModelMixin,
+                           GenericAPIView):
     serializer_class = LikeSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         try:
@@ -55,23 +53,19 @@ class LikeListCreateView(mixins.ListModelMixin,
             content = {'error': 'IntegrityError'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def get_object(self):
+        try:
+            return Like.objects.get(user_id=self.request.user.id,
+                                    post_id=self.kwargs.get('pk'))
+        except Like.DoesNotExist:
+            raise Http404
+
     def get_queryset(self):
         post_id = self.kwargs.get('pk')
         return Like.objects.filter(post_id=post_id)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user, post_id=self.kwargs.get('pk'))
-
-
-class LikeDeleteView(mixins.DestroyModelMixin,
-                     GenericAPIView):
-    serializer_class = LikeSerializer
-    lookup_field = 'user_id'
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-    def get_queryset(self):
-        post_id = self.kwargs.get('pk')
-        user_id = self.kwargs.get('user_id')
-        return Like.objects.filter(post_id=post_id, user_id=user_id)
