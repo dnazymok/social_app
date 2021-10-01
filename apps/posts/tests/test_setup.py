@@ -10,6 +10,15 @@ class TestSetUp(APITestCase):
                                  email='email@gmail.com',
                                  password='password')
         self.user = User.objects.get(username='username')
-        self.post_data = {'title': 'title', 'description': 'description',
+        self.post_data = {'title': 'title',
+                          'description': 'description',
                           'content': 'content'}
+        self.update_post_data = {'title': 'new_title',
+                                 'description': 'new_description',
+                                 'content': 'new_content'}
+        self.partial_update_post_data = {'title': 'new_title',
+                                         'description': 'new_description'}
         return super().setUp()
+
+    def tearDown(self):
+        return super().tearDown()
