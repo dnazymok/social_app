@@ -1,13 +1,27 @@
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.test import APITestCase
 from .test_setup import TestSetUp
 from ..models import Post, Like
 
 
-class ListCreateViewTest(TestSetUp):
+class ListTest(APITestCase):
     def test_can_read_posts_list(self):
         response = self.client.get(reverse('posts:index'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class CreateTest(APITestCase):
+    post_data = {'title': 'title',
+                 'description': 'description',
+                 'content': 'content'}
+
+    def setUp(self):
+        User.objects.create_user(username='username',
+                                 email='email@gmail.com',
+                                 password='password')
+        self.user = User.objects.get(username='username')
 
     def test_can_create_post(self):
         self.client.force_authenticate(user=self.user)
@@ -26,17 +40,13 @@ class ListCreateViewTest(TestSetUp):
 
 
 class DetailViewTest(TestSetUp):
-    def setUp(self):
-        super().setUp()
-        self.client.force_authenticate(user=self.user)
-        self.client.post(reverse('posts:index'), self.post_data)
-        self.client.logout()
-
     def test_can_read_post_detail(self):
         pk = Post.objects.first().id
         response = self.client.get(reverse('posts:detail', kwargs={'pk': pk}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+
+class PutTest(TestSetUp):
     def test_can_update_post(self):
         pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
@@ -51,6 +61,8 @@ class DetailViewTest(TestSetUp):
                                    self.update_post_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
+class PatchTest(TestSetUp):
     def test_can_partial_update_post(self):
         pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
@@ -67,6 +79,8 @@ class DetailViewTest(TestSetUp):
             self.partial_update_post_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+
+class DeleteTest(TestSetUp):
     def test_can_delete_post(self):
         pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
@@ -82,10 +96,6 @@ class DetailViewTest(TestSetUp):
 
 
 class LikeCreateTest(TestSetUp):
-    def setUp(self):
-        super().setUp()
-        Post.objects.create(author_id=self.user.id)
-
     def test_can_create_like(self):
         pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
