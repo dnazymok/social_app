@@ -5,7 +5,7 @@ from rest_framework.generics import CreateAPIView
 from .serializers import UserSerializer
 
 
-class ListCreateView(CreateAPIView):
+class CreateView(CreateAPIView):
     model = User
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
