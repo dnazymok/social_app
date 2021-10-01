@@ -81,12 +81,10 @@ class DetailViewTest(TestSetUp):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-class LikeCreateDeleteViewTest(TestSetUp):
+class LikeCreateTest(TestSetUp):
     def setUp(self):
         super().setUp()
-        self.client.force_authenticate(user=self.user)
-        self.client.post(reverse('posts:index'), self.post_data)
-        self.client.logout()
+        Post.objects.create(author_id=self.user.id)
 
     def test_can_create_like(self):
         pk = Post.objects.first().id
@@ -101,11 +99,16 @@ class LikeCreateDeleteViewTest(TestSetUp):
             reverse('posts:likes', kwargs={'pk': pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_can_delete_like(self):
-        post = Post.objects.first()
-        pk = post.id
-        like = Like.objects.create(post_id=pk, user_id=self.user.id)
+
+class LikeDeleteTest(TestSetUp):
+    def setUp(self):
+        super().setUp()
+        post = Post.objects.create(author_id=self.user.id)
+        like = Like.objects.create(post_id=post.id, user_id=self.user.id)
         post.likes.add(like)
+
+    def test_can_delete_like(self):
+        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
             reverse('posts:likes', kwargs={'pk': pk}))
