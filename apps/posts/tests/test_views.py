@@ -41,91 +41,86 @@ class CreateTest(APITestCase):
 
 class DetailViewTest(TestSetUp):
     def test_can_read_post_detail(self):
-        pk = Post.objects.first().id
-        response = self.client.get(reverse('posts:detail', kwargs={'pk': pk}))
+        response = self.client.get(
+            reverse('posts:detail', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class PutTest(TestSetUp):
     def test_can_update_post(self):
-        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
-        response = self.client.put(reverse('posts:detail', kwargs={'pk': pk}),
-                                   self.update_post_data)
+        response = self.client.put(
+            reverse('posts:detail', kwargs={'pk': self.post.id}),
+            self.update_post_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'new_title')
 
     def test_unauthorized_user_cant_update_post(self):
-        pk = Post.objects.first().id
-        response = self.client.put(reverse('posts:detail', kwargs={'pk': pk}),
-                                   self.update_post_data)
+        response = self.client.put(
+            reverse('posts:detail', kwargs={'pk': self.post.id}),
+            self.update_post_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class PatchTest(TestSetUp):
     def test_can_partial_update_post(self):
-        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(
-            reverse('posts:detail', kwargs={'pk': pk}),
+            reverse('posts:detail', kwargs={'pk': self.post.id}),
             self.partial_update_post_data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['title'], 'new_title')
 
     def test_unauthorized_user_cant_partial_update_post(self):
-        pk = Post.objects.first().id
         response = self.client.patch(
-            reverse('posts:detail', kwargs={'pk': pk}),
+            reverse('posts:detail', kwargs={'pk': self.post.id}),
             self.partial_update_post_data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class DeleteTest(TestSetUp):
     def test_can_delete_post(self):
-        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
-            reverse('posts:detail', kwargs={'pk': pk}))
+            reverse('posts:detail', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_unauthorized_user_cant_delete_post(self):
-        pk = Post.objects.first().id
         response = self.client.delete(
-            reverse('posts:detail', kwargs={'pk': pk}))
+            reverse('posts:detail', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class LikeCreateTest(TestSetUp):
     def test_can_create_like(self):
-        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse('posts:likes', kwargs={'pk': pk}))
+            reverse('posts:likes', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_unauthorized_user_cant_create_like(self):
-        pk = Post.objects.first().id
         response = self.client.post(
-            reverse('posts:likes', kwargs={'pk': pk}))
+            reverse('posts:likes', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class LikeDeleteTest(TestSetUp):
     def setUp(self):
-        super().setUp()
-        post = Post.objects.create(author_id=self.user.id)
-        like = Like.objects.create(post_id=post.id, user_id=self.user.id)
-        post.likes.add(like)
+        User.objects.create_user(username='username',
+                                 email='email@gmail.com',
+                                 password='password')
+        self.user = User.objects.get(username='username')
+        self.post = Post.objects.create(author_id=self.user.id)
+        like = Like.objects.create(post_id=self.post.id, user_id=self.user.id)
+        self.post.likes.add(like)
 
     def test_can_delete_like(self):
-        pk = Post.objects.first().id
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
-            reverse('posts:likes', kwargs={'pk': pk}))
+            reverse('posts:likes', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_unauthorized_user_cant_delete_like(self):
-        pk = Post.objects.first().id
         response = self.client.delete(
-            reverse('posts:likes', kwargs={'pk': pk}))
+            reverse('posts:likes', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
