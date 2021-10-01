@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from .test_setup import TestSetUp
-from ..models import Post
+from ..models import Post, Like
 
 
 class ListCreateViewTest(TestSetUp):
@@ -78,4 +78,41 @@ class DetailViewTest(TestSetUp):
         pk = Post.objects.first().id
         response = self.client.delete(
             reverse('posts:detail', kwargs={'pk': pk}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class LikeCreateDeleteViewTest(TestSetUp):
+    def setUp(self):
+        super().setUp()
+        self.client.force_authenticate(user=self.user)
+        self.client.post(reverse('posts:index'), self.post_data)
+        self.client.logout()
+
+    def test_can_create_like(self):
+        pk = Post.objects.first().id
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            reverse('posts:likes', kwargs={'pk': pk}))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_unauthorized_user_cant_create_like(self):
+        pk = Post.objects.first().id
+        response = self.client.post(
+            reverse('posts:likes', kwargs={'pk': pk}))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_can_delete_like(self):
+        post = Post.objects.first()
+        pk = post.id
+        like = Like.objects.create(post_id=pk, user_id=self.user.id)
+        post.likes.add(like)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(
+            reverse('posts:likes', kwargs={'pk': pk}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_unauthorized_user_cant_delete_like(self):
+        pk = Post.objects.first().id
+        response = self.client.delete(
+            reverse('posts:likes', kwargs={'pk': pk}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
