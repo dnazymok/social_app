@@ -20,9 +20,6 @@ class ListCreateView(mixins.ListModelMixin,
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
 
 class DetailView(mixins.RetrieveModelMixin,
                  mixins.UpdateModelMixin,

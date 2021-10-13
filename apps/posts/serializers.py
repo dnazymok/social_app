@@ -19,6 +19,12 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
             'modified',
         ]
 
+    def create(self, validated_data):
+        return Post.objects.create(
+            **validated_data,
+            author=self.context['request'].user
+        )
+
     def get_count_of_likes(self, obj):
         return obj.likes.count()
 
