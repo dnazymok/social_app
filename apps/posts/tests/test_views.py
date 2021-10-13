@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from .factories.user_factory import UserFactory
 from .test_setup import TestSetUp
 from ..models import Post, Like
 
@@ -20,12 +22,9 @@ class CreateTest(APITestCase):
     }
 
     def setUp(self):
-        User.objects.create_user(
-            username='username',
-            email='email@gmail.com',
-            password='password'
-        )
-        self.user = User.objects.get(username='username')
+        factory = UserFactory()
+        user = factory.make_user()
+        self.user = user
 
     def test_can_create_post(self):
         self.client.force_authenticate(user=self.user)
@@ -110,12 +109,9 @@ class LikeCreateTest(TestSetUp):
 
 class LikeDeleteTest(TestSetUp):
     def setUp(self):
-        User.objects.create_user(
-            username='username',
-            email='email@gmail.com',
-            password='password'
-        )
-        self.user = User.objects.get(username='username')
+        factory = UserFactory()
+        user = factory.make_user()
+        self.user = user
         self.post = Post.objects.create(author_id=self.user.id)
         like = Like.objects.create(post_id=self.post.id, user_id=self.user.id)
         self.post.likes.add(like)
