@@ -1,8 +1,6 @@
-from rest_framework import mixins, status, viewsets
-from rest_framework.generics import GenericAPIView
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db import IntegrityError
-from django.http import Http404
 
 from .models import Post, Like
 from .serializers import PostSerializer, LikeSerializer
@@ -12,34 +10,27 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-
-class LikeCreateDeleteView(mixins.CreateModelMixin,
-                           mixins.DestroyModelMixin,
-                           GenericAPIView):
-    serializer_class = LikeSerializer
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return self.create(request, *args, **kwargs)
-        except IntegrityError:
-            content = {'error': 'IntegrityError'}
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
-
-    def get_object(self):
-        try:
-            return Like.objects.get(
-                user_id=self.request.user.id,
-                post_id=self.kwargs.get('pk')
+    @action(detail=True, methods=['post'])
+    def like(self, request, pk=None):
+        like = Like()
+        post = self.get_object()
+        serializer = LikeSerializer(data=request.data)
+        if serializer.is_valid():
+            like.post = post
+            like.user = request.user
+            like.save()
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST
             )
-        except Like.DoesNotExist:
-            raise Http404
 
-    def get_queryset(self):
-        post_id = self.kwargs.get('pk')
-        return Like.objects.filter(post_id=post_id)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user, post_id=self.kwargs.get('pk'))
+    @action(detail=True, methods=['delete'])  # todo or 1 action post/delete
+    def dislike(self, request, pk=None):
+        like = Like.objects.get(
+            user_id=self.request.user.id,
+            post_id=self.kwargs.get('pk')
+        )
+        like.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

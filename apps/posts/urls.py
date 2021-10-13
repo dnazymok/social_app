@@ -10,5 +10,4 @@ router.register(r'', views.PostViewSet)
 app_name = 'posts'
 urlpatterns = [
     path('', include(router.urls)),
-    path('<int:pk>/likes', views.LikeCreateDeleteView.as_view(), name='likes'),
 ]

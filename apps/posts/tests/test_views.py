@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -98,12 +97,12 @@ class LikeCreateTest(TestSetUp):
     def test_can_create_like(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(
-            reverse('posts:likes', kwargs={'pk': self.post.id}))
+            reverse('posts:post-like', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_unauthorized_user_cant_create_like(self):
         response = self.client.post(
-            reverse('posts:likes', kwargs={'pk': self.post.id}))
+            reverse('posts:post-like', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -119,10 +118,10 @@ class LikeDeleteTest(TestSetUp):
     def test_can_delete_like(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(
-            reverse('posts:likes', kwargs={'pk': self.post.id}))
+            reverse('posts:post-dislike', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_unauthorized_user_cant_delete_like(self):
         response = self.client.delete(
-            reverse('posts:likes', kwargs={'pk': self.post.id}))
+            reverse('posts:post-dislike', kwargs={'pk': self.post.id}))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
