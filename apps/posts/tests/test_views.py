@@ -13,14 +13,18 @@ class ListTest(APITestCase):
 
 
 class CreateTest(APITestCase):
-    post_data = {'title': 'title',
-                 'description': 'description',
-                 'content': 'content'}
+    post_data = {
+        'title': 'title',
+        'description': 'description',
+        'content': 'content'
+    }
 
     def setUp(self):
-        User.objects.create_user(username='username',
-                                 email='email@gmail.com',
-                                 password='password')
+        User.objects.create_user(
+            username='username',
+            email='email@gmail.com',
+            password='password'
+        )
         self.user = User.objects.get(username='username')
 
     def test_can_create_post(self):
@@ -106,9 +110,11 @@ class LikeCreateTest(TestSetUp):
 
 class LikeDeleteTest(TestSetUp):
     def setUp(self):
-        User.objects.create_user(username='username',
-                                 email='email@gmail.com',
-                                 password='password')
+        User.objects.create_user(
+            username='username',
+            email='email@gmail.com',
+            password='password'
+        )
         self.user = User.objects.get(username='username')
         self.post = Post.objects.create(author_id=self.user.id)
         like = Like.objects.create(post_id=self.post.id, user_id=self.user.id)

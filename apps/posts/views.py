@@ -61,8 +61,10 @@ class LikeCreateDeleteView(mixins.CreateModelMixin,
 
     def get_object(self):
         try:
-            return Like.objects.get(user_id=self.request.user.id,
-                                    post_id=self.kwargs.get('pk'))
+            return Like.objects.get(
+                user_id=self.request.user.id,
+                post_id=self.kwargs.get('pk')
+            )
         except Like.DoesNotExist:
             raise Http404
 
