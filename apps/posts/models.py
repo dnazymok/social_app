@@ -1,19 +1,19 @@
 from django.db import models
 from django.contrib.auth.models import User
+from model_utils.models import TimeStampedModel
 
 
-class Post(models.Model):
+class Post(TimeStampedModel):
     title = models.TextField(max_length=255)
     description = models.TextField()
     content = models.TextField()
-    date_posted = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
 
 
-class Like(models.Model):
+class Like(TimeStampedModel):
     user = models.ForeignKey(
         User,
         related_name='likes',

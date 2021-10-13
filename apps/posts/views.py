@@ -11,7 +11,7 @@ from .serializers import PostSerializer, LikeSerializer
 class ListCreateView(mixins.ListModelMixin,
                      mixins.CreateModelMixin,
                      GenericAPIView):
-    queryset = Post.objects.all().order_by('-date_posted')
+    queryset = Post.objects.all()
     serializer_class = PostSerializer
 
     def get(self, request, *args, **kwargs):

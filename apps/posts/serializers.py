@@ -13,9 +13,10 @@ class PostSerializer(serializers.HyperlinkedModelSerializer):
             'title',
             'description',
             'content',
-            'date_posted',
             'author',
-            'count_of_likes'
+            'count_of_likes',
+            'created',
+            'modified',
         ]
 
     def get_count_of_likes(self, obj):
