@@ -1,4 +1,4 @@
-from rest_framework import mixins, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from django.db import IntegrityError
@@ -8,37 +8,9 @@ from .models import Post, Like
 from .serializers import PostSerializer, LikeSerializer
 
 
-class ListCreateView(mixins.ListModelMixin,
-                     mixins.CreateModelMixin,
-                     GenericAPIView):
+class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-
-class DetailView(mixins.RetrieveModelMixin,
-                 mixins.UpdateModelMixin,
-                 mixins.DestroyModelMixin,
-                 GenericAPIView):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
-
-    def patch(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
 
 
 class LikeCreateDeleteView(mixins.CreateModelMixin,
