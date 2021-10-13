@@ -10,7 +10,7 @@ class UserFactory:
 
     def make_user(self):
         return(User.objects.create_user(
-            username='username',
-            email='email@gmail.com',
-            password='password'
+            username=self.username,
+            email=self.email,
+            password=self.password
         ))
